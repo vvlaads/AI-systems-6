@@ -39,24 +39,20 @@ print_sep()
 # === Предварительная обработка данных ===
 # --- Заполняем пропуски ---
 # Age - заполняем медианой
-train_df['Age'].fillna(train_df['Age'].median(), inplace=True)
-test_df['Age'].fillna(test_df['Age'].median(), inplace=True)
+train_df.fillna({'Age': train_df['Age'].median()}, inplace=True)
+test_df.fillna({'Age': test_df['Age'].median()}, inplace=True)
 
 # Embarked - заполняем модой
-train_df['Embarked'].fillna(train_df['Embarked'].mode()[0], inplace=True)
+train_df.fillna({'Embarked': train_df['Embarked'].mode()[0]}, inplace=True)
 
 # Fare (в тестовых данных есть 1 пропуск) - заполняем медианой
-test_df['Fare'].fillna(test_df['Fare'].median(), inplace=True)
+test_df.fillna({'Fare': test_df['Fare'].median()}, inplace=True)
 
 # --- Кодирование категориальных признаков ---
-train_df = pd.get_dummies(train_df, columns=['Embarked'], prefix='Embarked')
-test_df = pd.get_dummies(test_df, columns=['Embarked'], prefix='Embarked')
-
-train_df = pd.get_dummies(train_df, columns=['Sex'], prefix='Sex')
-test_df = pd.get_dummies(test_df, columns=['Sex'], prefix='Sex')
-
-train_df = pd.get_dummies(train_df, columns=['Pclass'], prefix='Class')
-test_df = pd.get_dummies(test_df, columns=['Pclass'], prefix='Class')
+categorical_columns = ['Embarked', 'Sex', 'Pclass']
+for col in categorical_columns:
+    train_df = pd.get_dummies(train_df, columns=[col], prefix=col)
+    test_df = pd.get_dummies(test_df, columns=[col], prefix=col)
 
 # --- Удаляем ненужные столбцы ---
 columns_to_drop = ['Name', 'Ticket', 'Cabin', 'PassengerId']
@@ -161,8 +157,8 @@ print(f"F1: {f1}")
 
 print_sep()
 
-# Градиентный спуск, шаг 0.1, итераций 10000
-logistic_regression = LogisticRegression(learning_rate=0.1, n_iterations=10000)
+# Градиентный спуск, шаг 0.1, итераций 5000
+logistic_regression = LogisticRegression(learning_rate=0.1, n_iterations=5000)
 logistic_regression.fit(X_train, y_train)
 y_predicted = logistic_regression.predict(X_test)
 tp, tn, fp, fn = test_values(y_predicted, y_test)
